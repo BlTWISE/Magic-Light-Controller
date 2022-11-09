@@ -40,3 +40,25 @@ def adjust_brightness_payload(brightness_percentage):
     payload = chr(command_id) + chr(red_value) + chr(green_value) + chr(blue_value) + chr(warm_brightness) + chr(white_brightness) + chr(first_bool) + chr(second_bool) + chr(checksum)
     return payload
 ```
+And sending it to the lights via a socket:
+```python
+def send_payload_to_all_lamps(command):
+    
+    payload = ''
+
+    if command == 'all_on':
+        payload = adjust_brightness_payload(100)
+    elif command == 'all_off':
+        payload = adjust_brightness_payload(0)
+    elif command.startswith('set_brightness'):
+        payload = adjust_brightness_payload(command.split()[1])
+
+    for lamp in lamps:
+        host = lamp
+        port = 5577
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((host, port))
+        print("Payload:" + payload)
+        s.send(payload)
+        s.close()
+```
